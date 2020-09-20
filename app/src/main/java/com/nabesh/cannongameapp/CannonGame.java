@@ -6,6 +6,7 @@ import android.media.AudioManager;
 import android.net.rtp.AudioStream;
 import android.os.Bundle;
 import android.view.GestureDetector;
+import android.view.MotionEvent;
 
 public class CannonGame extends AppCompatActivity {
     private GestureDetector gestureDetector; //listens to double tap on the screen
@@ -39,5 +40,19 @@ public class CannonGame extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         cannonView.releaseResources();
+    }
+
+    //called when the user touches the screen in this activity
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        //get int representing the type of action which caused this event
+        int action = event.getAction();
+
+        //the user touched or dragged along the screen
+        if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE){
+            cannonView.alignCannon(event);
+        }
+        //call the GestureDetector's onTouchEvent method
+        return gestureDetector.onTouchEvent(event);
     }
 }
