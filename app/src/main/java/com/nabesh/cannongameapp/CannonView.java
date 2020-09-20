@@ -11,4 +11,7 @@ class CannonView {
 
     public void stopGame() {
     }
+
+    public void fireCannonBall(MotionEvent e) {
+    }
 }

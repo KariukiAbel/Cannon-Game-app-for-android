@@ -55,4 +55,15 @@ public class CannonGame extends AppCompatActivity {
         //call the GestureDetector's onTouchEvent method
         return gestureDetector.onTouchEvent(event);
     }
+
+    //Listens for touch events sent to the GestureDetector
+    GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener(){
+
+        //called when the user double taps the screen
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            cannonView.fireCannonBall(e);
+            return true;
+        }
+    };
 }
