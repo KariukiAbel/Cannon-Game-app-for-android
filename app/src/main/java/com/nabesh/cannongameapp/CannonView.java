@@ -2,17 +2,21 @@ package com.nabesh.cannongameapp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static android.content.ContentValues.TAG;
 
 public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
     private CannonThread cannonThread;
@@ -112,13 +116,90 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
         backgroundPaint = new Paint();
     }
 
+    //called when the size of this view changes --including when this view is first added to the view hierarchy
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        screenWidth = w;
+        screenHeight = h;
+
+        cannonBaseRadius = h / 18;
+        cannonLength = w / 8;
+
+        cannonballRadius = w / 36;
+        cannonballSpeed = w * 3 / 2;
+
+        lineWidth = w / 24;
+
+        blockerDistance = w *5 / 8;
+        blockerBeginning = h / 8;
+        blockerEnd = h * 3 / 8;
+        initialBlockerVelocity = h / 2;
+        blocker.start = new Point(blockerDistance, blockerBeginning);
+        blocker.end = new Point(blockerDistance, blockerEnd);
+
+        targetDistance = w * 7 / 8;
+        targetBeginning = h / 8;
+        targetEnd = h * 7 / 8;
+        pierceLength = (targetEnd - targetBeginning) / TARGET_PIECES;
+        initialTargetVelocity = -h / 4;
+        target.start = new Point(targetDistance, targetBeginning);
+        target.end = new Point(targetDistance, targetEnd);
+
+        barrelEnd = new Point(cannonLength, h / 2);
+
+        textPaint.setTextSize(w / 20);
+        textPaint.setAntiAlias(true);
+        cannonballPaint.setStrokeWidth(lineWidth * 1.5f);
+        blockerPaint.setStrokeWidth(lineWidth);
+        targetPaint.setStrokeWidth(lineWidth);
+        backgroundPaint.setColor(Color.WHITE);
+        
+        newGame();
+
+    }
+
+    //reset all the screen elements and start a new game
+    public void newGame() {
+        for (int i = 0; i < TARGET_PIECES; ++i) {
+            hitStates[i] = false;
+        }
+
+        targetPiecesHit = 0;
+        blockerVelocity = initialBlockerVelocity;
+        targetVelocity = initialTargetVelocity;
+        timeLeft = 10;
+        cannonballOnScreen = false;
+        shotsFired = 0;
+        totalTimeElapsed = 0.0;
+        blocker.start.set(blockerDistance, blockerBeginning);
+        blocker.end.set(blockerDistance, blockerEnd);
+        target.start.set(targetDistance, targetBeginning);
+        target.end.set(targetDistance, targetEnd);
+
+        if (gameOver){
+            gameOver = false;
+            cannonThread = new CannonThread(getHolder());
+            cannonThread.start();
+        }
+    }
+
+    private void updatePosition(){
+
+    }
+
     public void alignCannon(MotionEvent event) {
     }
 
     public void releaseResources() {
+        soundPool.release();
+        soundPool = null;
     }
 
     public void stopGame() {
+        if (cannonThread != null){
+            cannonThread.setRunning(false);
+        }
     }
 
     public void fireCannonBall(MotionEvent e) {
@@ -126,7 +207,9 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
-
+        cannonThread = new CannonThread(surfaceHolder);
+        cannonThread.setRunning(true);
+        cannonThread.start();
     }
 
     @Override
@@ -136,6 +219,17 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+        //ensure the thread terminates correctly
+        boolean retry = true;
+        cannonThread.setRunning(false);
 
+        while(retry){
+            try {
+                cannonThread.join();
+                retry = false;
+            }catch (InterruptedException e){
+                Log.e(TAG, "surfaceDestroyed: exception ", e);
+            }
+        }
     }
 }
