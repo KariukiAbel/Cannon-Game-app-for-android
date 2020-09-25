@@ -2,13 +2,13 @@ package com.nabesh.cannongameapp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -16,7 +16,6 @@ import android.view.SurfaceView;
 import java.util.HashMap;
 import java.util.Map;
 
-import static android.content.ContentValues.TAG;
 
 public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
     private CannonThread cannonThread;
@@ -103,9 +102,9 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
 
         //create Map of sounds and preload sounds
         soundMap = new HashMap<Integer, Integer>(); //creates a new HashMap
-        soundMap.put(TARGET_SOUND_ID, soundPool.load(context, R.raw.target_hit, 1));
-        soundMap.put(CANNON_SOUND_ID, soundPool.load(context, R.raw.cannon_fire, 1));
-        soundMap.put(BLOCKER_SOUND_ID, soundPool.load(context, R.raw.blocker_hit, 1));
+//        soundMap.put(TARGET_SOUND_ID, soundPool.load(context, R.raw.target_hit, 1));
+//        soundMap.put(CANNON_SOUND_ID, soundPool.load(context, R.raw.cannon_fire, 1));
+//        soundMap.put(BLOCKER_SOUND_ID, soundPool.load(context, R.raw.blocker_hit, 1));
 
         //Constructs for the paint
         textPaint = new Paint();
@@ -184,8 +183,7 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
-    private void updatePosition(){
-
+    protected void updatePositions(){
     }
 
     public void alignCannon(MotionEvent event) {
@@ -203,6 +201,9 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void fireCannonBall(MotionEvent e) {
+    }
+
+    public void drawGameElements(Canvas canvas) {
     }
 
     @Override
@@ -228,7 +229,6 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
                 cannonThread.join();
                 retry = false;
             }catch (InterruptedException e){
-                Log.e(TAG, "surfaceDestroyed: exception ", e);
             }
         }
     }
