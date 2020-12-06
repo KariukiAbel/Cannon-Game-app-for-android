@@ -239,7 +239,6 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
 
-
         //update blocker position
         double blockerUpdate = interval * blockerVelocity;
         blocker.start.y += blockerUpdate;
@@ -255,7 +254,7 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
             blockerVelocity *= -1;
         }
 
-        //if the target hit top or botttom, reverse direction
+        //if the target hit top or bottom, reverse direction
         if (target.start.y < 0 || target.end.y > screenHeight){
             targetVelocity *= -1;
         }
@@ -266,10 +265,12 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
             timeLeft = 0.0;
             gameOver = true;
             cannonThread.setRunning(false);
-            showGameOverDialog(R.string.lose)
+            showGameOverDialog(R.string.lose);
         }
     }
 
+    private void showGameOverDialog(int win) {
+    }
 
     public void alignCannon(MotionEvent event) {
     }
@@ -286,6 +287,24 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void fireCannonBall(MotionEvent e) {
+        if (cannonballOnScreen)
+            return;
+        double angle = alignCannon(e); //get the cannonbarrel's angle
+
+        //move the cannonball inside the cannon
+        cannonball.x = cannonballRadius;
+        cannonball.y = screenHeight / 2;
+
+        //getting the x component of total velocity
+        cannonballVelocityX = (int) (cannonballSpeed * Math.sin(angle));
+
+        //getting the Y component of the total velocity
+        cannonballVelocityY = (int) (-cannonballSpeed * Math.cos(angle));
+        cannonballOnScreen = true;
+        ++shotsFired;
+
+        //play cannon fired sound
+        soundPool.play(soundMap.get(CANNON_SOUND_ID), 1, 1, 1, 0, 1f);
     }
 
     public void drawGameElements(Canvas canvas) {
