@@ -1,7 +1,10 @@
 package com.nabesh.cannongameapp;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -269,7 +272,31 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
-    private void showGameOverDialog(int win) {
+    @SuppressLint("StringFormatInvalid")
+    private void showGameOverDialog(int messageId) {
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+        dialogBuilder.setTitle(getResources().getString(messageId));
+        dialogBuilder.setCancelable(false);
+
+        //display number of shots fired and total time elapsed
+        dialogBuilder.setMessage(getResources().getString(R.string.results_format, shotsFired, totalTimeElapsed));
+        dialogBuilder.setPositiveButton(R.string.reset_game, new DialogInterface.OnClickListener() {
+
+            //called when the reset button is clicked
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogIsDisplayed = false;
+                newGame();
+            }
+        });
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                dialogIsDisplayed = true;
+                dialogBuilder.show();
+            }
+        });
     }
 
     //alligns the cannon in response to user touches
