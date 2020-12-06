@@ -272,7 +272,28 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
     private void showGameOverDialog(int win) {
     }
 
-    public void alignCannon(MotionEvent event) {
+    //alligns the cannon in response to user touches
+    public double alignCannon(MotionEvent event) {
+        //get the location of the touch  in this view
+        Point touchPoint = new Point((int)event.getX(), (int)event.getY());
+        //compute the touch's distance from the centre of the screen
+        double centerMinusY = (screenHeight / 2 - touchPoint.y);
+        double angle = 0;
+
+        //calculate the angle the barrel makes with the horizontal
+        if (centerMinusY != 0)
+            angle = Math.atan(touchPoint.x / centerMinusY);
+
+        //if the touch is on the lower part of the screen
+        if (touchPoint.y > screenHeight / 2)
+            angle += Math.PI;
+
+        //calculate the end point of the cannon barrel
+        barrelEnd.x = (int) (cannonLength * Math.sin(angle));
+        barrelEnd.y = (int) (-cannonLength * Math.cos(angle) + screenHeight / 2);
+
+        return angle;
+
     }
 
     public void releaseResources() {
