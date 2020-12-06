@@ -184,7 +184,7 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     //called repeatedly by the CannonThread to update game elements
-    protected void updatePositions(double elapsedTimeMS){
+    private void updatePositions(double elapsedTimeMS){
         double interval = elapsedTimeMS / 100; //converts to seconds
         if (cannonballOnScreen){ //if there is currently a shot fired
             //update cannon ball position
